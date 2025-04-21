@@ -9,8 +9,15 @@ declare(strict_types=1);
 namespace Bazaarvoice\Connector\Logger;
 
 use Bazaarvoice\Connector\Api\ConfigProviderInterface;
+use DateTimeZone;
 use Exception;
 use Magento\Framework\App\State;
+use Monolog\Handler\HandlerInterface;
+use Monolog\JsonSerializableDateTimeImmutable;
+use Monolog\Level;
+use Monolog\LogRecord;
+use Monolog\Processor\ProcessorInterface;
+use Stringable;
 
 /**
  * Class Logger
@@ -78,7 +85,7 @@ class Logger extends \Monolog\Logger
     /**
      * Adds a log record.
      *
-     * @param  int                    $level    The logging level (a Monolog or RFC 5424 level)
+     * @param  int|Level              $level    The logging level (a Monolog or RFC 5424 level)
      * @param  string                 $message  The log message
      * @param  mixed[]                $context  The log context
      * @param  JsonSerializableDateTimeImmutable|null $datetime Optional log date to log into the past or future
