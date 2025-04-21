@@ -47,13 +47,6 @@ use Magento\Theme\Model\Theme;
 class Eav implements IndexerActionInterface, MviewActionInterface
 {
     /**
-     * @var \Magento\Catalog\Helper\Image
-     */
-    public $imageHelper;
-    public $assetRepository;
-    public $design;
-    public $theme;
-    /**
      * @var \Bazaarvoice\Connector\Logger\Logger
      */
     private $logger;
@@ -105,6 +98,22 @@ class Eav implements IndexerActionInterface, MviewActionInterface
      * @var \Magento\Eav\Model\Config
      */
     private $eavConfig;
+    /**
+     * @var \Magento\Catalog\Helper\Image
+     */
+    private $imageHelper;
+    /**
+     * @var \Magento\Framework\View\Asset\Repository
+     */
+    private $assetRepository;
+    /**
+     * @var \Magento\Framework\View\DesignInterface
+     */
+    private $design;
+    /**
+     * @var \Magento\Theme\Model\Theme
+     */
+    private $theme;
 
     /**
      * @param \Bazaarvoice\Connector\Logger\Logger                               $logger
@@ -118,6 +127,10 @@ class Eav implements IndexerActionInterface, MviewActionInterface
      * @param \Bazaarvoice\Connector\Api\Data\IndexInterfaceFactory              $bvIndexFactory
      * @param \Bazaarvoice\Connector\Api\IndexRepositoryInterface                $indexRepository
      * @param \Magento\Eav\Model\Config                                          $eavConfig
+     * @param \Magento\Catalog\Helper\Image                                      $imageHelper
+     * @param \Magento\Framework\View\Asset\Repository                           $assetRepository
+     * @param \Magento\Framework\View\DesignInterface                            $design
+     * @param \Magento\Theme\Model\Theme                                         $theme
      */
     public function __construct(
         Logger $logger,

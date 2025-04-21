@@ -18,8 +18,13 @@ namespace Bazaarvoice\Connector\Model\BVSEOSDK;
  */
 class Base
 {
+    private $msg = '';
 
-    public $config;
+    /**
+     * @var array $config
+     */
+    private $config;
+
     /**
      * @var array<string, mixed>|array<string, string>
      */
@@ -33,7 +38,6 @@ class Base
      * @var float
      */
     public $response_time;
-    private $msg = '';
 
     public function __construct($params = array())
     {

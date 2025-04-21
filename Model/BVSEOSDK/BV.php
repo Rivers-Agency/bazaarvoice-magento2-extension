@@ -54,7 +54,10 @@ define('DEFAULT_CHARSET', 'UTF-8');
  */
 class BV
 {
-    public $config;
+    /**
+     * @var array $config
+     */
+    private $config;
     /**
      * @var \Bazaarvoice\Connector\Model\BVSEOSDK\Reviews
      */
