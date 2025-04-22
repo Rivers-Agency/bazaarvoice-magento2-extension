@@ -78,7 +78,7 @@ class Logger extends \Monolog\Logger
             if (is_array($message)) {
                 $message = json_encode($message);
             }
-            $this->addRecord(Level::DEBUG, strval($message),$context);
+            $this->addRecord(Level::Debug, strval($message),$context);
         }
     }
 
