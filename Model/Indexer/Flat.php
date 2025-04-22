@@ -606,7 +606,7 @@ class Flat implements IndexerActionInterface, MviewActionInterface
                     }
                 }
                 $this->logger->debug('Family Info');
-                $this->logger->debug($indexData['family']);
+                $this->logger->debugProcessMessage($indexData['family']);
             }
 
             /**
@@ -760,7 +760,7 @@ class Flat implements IndexerActionInterface, MviewActionInterface
 
                         if (isset($indexData['product_page_url'])) {
                             $this->logger->debug('Locale URL');
-                            $this->logger->debug($indexData['product_page_url']);
+                            $this->logger->debugProcessMessage($indexData['product_page_url']);
                         }
 
                         $indexData['image_url'] = $this->getImageUrl($localeStore, $indexData);

@@ -99,9 +99,9 @@ class Product
                 ->addFieldToFilter('store_id', $product->getData('store_id'));
             $childrenValues = [];
             foreach ($children as $child) {
-                $this->logger->debug($child->getExternalId());
+                $this->logger->debugProcessMessage($child->getExternalId());
                 foreach (Index::CUSTOM_ATTRIBUTES as $attribute) {
-                    $this->logger->debug($attribute);
+                    $this->logger->debugProcessMessage($attribute);
                     $attribute = strtolower($attribute).'s';
                     if ($child->getData($attribute)) {
                         $value = $child->getData($attribute);
@@ -118,7 +118,7 @@ class Product
                     }
                 }
             }
-            $this->logger->debug($childrenValues);
+            $this->logger->debugProcessMessage($childrenValues);
             foreach ($childrenValues as $attribute => $values) {
                 if (!is_array($values) || empty($values)) {
                     continue;

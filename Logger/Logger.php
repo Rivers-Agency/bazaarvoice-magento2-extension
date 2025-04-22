@@ -46,7 +46,7 @@ class Logger extends \Monolog\Logger
      * @param DateTimeZone|null                         $timezone Optional timezone, if not provided date_default_timezone_get() will be used
      *
      * @phpstan-param array<(callable(LogRecord): LogRecord)|ProcessorInterface> $processors
- */
+     */
     public function __construct(
         string $name,
         ConfigProviderInterface $configProvider,
@@ -80,6 +80,22 @@ class Logger extends \Monolog\Logger
             }
             $this->addRecord(Level::Debug, strval($message),$context);
         }
+    }
+
+    /**
+     * @param string|Stringable|array $message
+     * @param array $context
+     * @return void
+     */
+    public function debugProcessMessage(string|\Stringable|array|null $message, array $context = []): void
+    {
+        if (is_null($message)) {
+            $message = '';
+        }
+        if (is_array($message)) {
+            $message = print_r($message, true);
+        }
+        $this->debug($message, $context);
     }
 
     /**
