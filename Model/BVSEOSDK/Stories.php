@@ -52,11 +52,11 @@ class Stories extends Base
         if (!empty($this->config['page_params']['subject_id']) && $this->_checkBVStateContentType()) {
             $subject_id = $this->config['page_params']['subject_id'];
         } else {
-            $subject_id = $this->config['subject_id'];
+            $subject_id = $this->config['subject_id'] ?? '';
         }
         // if they want to power display integration as well
         // then we need to include the JS integration code
-        if ($this->config['include_display_integration_code']) {
+        if (!empty($this->config['include_display_integration_code'])) {
             $payload .= '
          <script>
            $BV.ui("su", "show_stories", {

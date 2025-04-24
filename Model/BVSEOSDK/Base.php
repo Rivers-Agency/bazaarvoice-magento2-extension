@@ -86,6 +86,7 @@ class Base
 
         if (
             !empty($this->config['page_params']['content_type'])
+            && isset($this->config['content_type'])
             && $this->config['page_params']['content_type'] == $this->config['content_type']
         ) {
             return true;
@@ -374,7 +375,9 @@ class Base
                 // someone calls up a page with bvstate=ct:r/pg:2 and loads stories rather
                 // than reviews, show page 1 for stories. Only show page 2 if they are in
                 // fact displaying review content.
-                if ($this->config['content_type'] == $this->config['page_params']['content_type']) {
+                if (isset($this->config['content_type'])
+                    && isset($this->config['page_params']['content_type'])
+                    && $this->config['content_type'] == $this->config['page_params']['content_type']) {
                     $page_number = $this->config['page_params']['page'];
                 }
             }
@@ -445,7 +448,9 @@ class Base
 
         $url_scheme = $this->config['ssl_enabled'] ? 'https://' : 'http://';
 
-        if ($this->config['content_type'] == 'reviews'
+        if (isset($this->config['content_type'])
+            && isset($this->config['subject_type'])
+            && $this->config['content_type'] == 'reviews'
             && $this->config['subject_type'] == 'seller') {
             // when content type is reviews and subject type is seller,
             // we're dealing with seller rating, so use different primary selector
