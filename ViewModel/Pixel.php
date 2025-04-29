@@ -183,7 +183,7 @@ class Pixel implements ArgumentInterface
             $itemDetails['imageURL'] = $this->mediaConfigFactory->create()->getMediaUrl($product->getSmallImage());
 
             if ($this->configProvider->isFamiliesEnabled() && $item->getParentItem()) {
-                if (strpos($itemDetails['imageURL'], 'placeholder/image.jpg') !== false) {
+                if (str_contains((string) $itemDetails['imageURL'], 'placeholder/image.jpg')) {
                     /**
                      * if product families are enabled and product has no image, use configurable image
                      */
@@ -205,7 +205,7 @@ class Pixel implements ArgumentInterface
         if ($order->getCustomerId()) {
             $userId = $order->getCustomerId();
         } elseif ($order->getCustomerEmail()) {
-            $userId = hash('sha256', $order->getCustomerEmail());
+            $userId = hash('sha256', (string) $order->getCustomerEmail());
         }
         if (!empty($userId)) {
             $this->orderDetails['userId'] = $userId;

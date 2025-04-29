@@ -253,7 +253,7 @@ class ConfigProvider implements ConfigProviderInterface
     {
         $families = $this->getFamilyAttributes($storeId, $scope);
         if ($families) {
-            if (strpos($families, ',') !== false) {
+            if (str_contains($families, ',')) {
                 $families = explode(',', $families);
             } else {
                 $families = [$families];
@@ -421,7 +421,7 @@ class ConfigProvider implements ConfigProviderInterface
     public function getSftpHost($storeId = null, $scope = ScopeInterface::SCOPE_STORE, $host = null)
     {
         $environment = $this->getEnvironment($storeId, $scope);
-        $hostSelection = $host ? $host : trim($this->getConfig('feeds/sftp_host_name', $storeId, $scope));
+        $hostSelection = $host ? $host : trim((string) $this->getConfig('feeds/sftp_host_name', $storeId, $scope));
 
         if ($environment == Environment::STAGING) {
             $sftpHost = $hostSelection.'-stg.bazaarvoice.com';

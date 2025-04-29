@@ -241,8 +241,8 @@ class Category
             $writer->writeElement('ParentExternalId', $category['parent']);
         }
 
-        $writer->writeElement('Name', htmlspecialchars($category['name'], ENT_QUOTES, 'UTF-8', false), true);
-        $writer->writeElement('CategoryPageUrl', htmlspecialchars($category['url'], ENT_QUOTES, 'UTF-8', false), true);
+        $writer->writeElement('Name', htmlspecialchars((string) $category['name'], ENT_QUOTES, 'UTF-8', false), true);
+        $writer->writeElement('CategoryPageUrl', htmlspecialchars((string) $category['url'], ENT_QUOTES, 'UTF-8', false), true);
 
         /**
          * Write out localized <Names> 
@@ -252,7 +252,7 @@ class Category
             foreach ($category['names'] as $locale => $name) {
                 $writer->startElement('Name');
                 $writer->writeAttribute('locale', $locale);
-                $writer->writeRaw(htmlspecialchars($name, ENT_QUOTES, 'UTF-8', false), true);
+                $writer->writeRaw(htmlspecialchars((string) $name, ENT_QUOTES, 'UTF-8', false), true);
                 $writer->endElement(); //End Name
             }
             $writer->endElement(); //End Names
@@ -266,7 +266,7 @@ class Category
             foreach ($category['urls'] as $locale => $url) {
                 $writer->startElement('CategoryPageUrl');
                 $writer->writeAttribute('locale', $locale);
-                $writer->writeRaw(htmlspecialchars($url, ENT_QUOTES, 'UTF-8', false), true);
+                $writer->writeRaw(htmlspecialchars((string) $url, ENT_QUOTES, 'UTF-8', false), true);
                 $writer->endElement(); //End CategoryPageUrl
             }
             $writer->endElement(); //End CategoryPageUrls

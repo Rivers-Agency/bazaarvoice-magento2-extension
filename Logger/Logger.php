@@ -9,9 +9,15 @@ declare(strict_types=1);
 namespace Bazaarvoice\Connector\Logger;
 
 use Bazaarvoice\Connector\Api\ConfigProviderInterface;
+use DateTimeZone;
 use Exception;
 use Magento\Framework\App\State;
-use Monolog\DateTimeImmutable;
+use Monolog\Handler\HandlerInterface;
+use Monolog\JsonSerializableDateTimeImmutable;
+use Monolog\Level;
+use Monolog\LogRecord;
+use Monolog\Processor\ProcessorInterface;
+use Stringable;
 
 /**
  * Class Logger
@@ -35,16 +41,19 @@ class Logger extends \Monolog\Logger
      * @param string                                    $name
      * @param ConfigProviderInterface                   $configProvider
      * @param State                                     $state
+     * @param list<HandlerInterface>                    $handlers Optional stack of handlers, the first one in the array is called first, etc.
+     * @param callable[]                                $processors Optional array of processors
+     * @param DateTimeZone|null                         $timezone Optional timezone, if not provided date_default_timezone_get() will be used
      *
-     * @param array|\Monolog\Handler\HandlerInterface[] $handlers
-     *
-     * @codingStandardsIgnoreStart
+     * @phpstan-param array<(callable(LogRecord): LogRecord)|ProcessorInterface> $processors
      */
     public function __construct(
-        $name,
+        string $name,
         ConfigProviderInterface $configProvider,
         State $state,
-        array $handlers = array()
+        array $handlers = [],
+        array $processors = [],
+        DateTimeZone|null $timezone = null
     ) {
         try {
             $this->admin = $state->getAreaCode() === 'adminhtml';
@@ -56,28 +65,52 @@ class Logger extends \Monolog\Logger
     }
 
     /**
-     * @param string|array $message
-     * @param array        $context
+     * Adds a log record at the DEBUG level.
      *
-     * @return bool
+     * This method allows for compatibility with common interfaces.
+     *
+     * @param string|Stringable $message The log message
+     * @param mixed[]           $context The log context
      */
-    public function debug($message, array $context = []): void
+    public function debug(string|\Stringable $message, array $context = []): void
     {
         if ($this->configProvider->isDebugEnabled()) {
             if (is_array($message)) {
                 $message = json_encode($message);
             }
-            $this->addRecord(static::DEBUG, strval($message),$context);
+            $this->addRecord(Level::Debug, strval($message),$context);
         }
     }
 
     /**
-     * @param int    $level
-     * @param string $message
-     * @param array  $context
-     * @return bool
+     * @param string|Stringable|array $message
+     * @param array $context
+     * @return void
      */
-    public function addRecord(int $level, string $message, array $context = [], DateTimeImmutable $datetime = null): bool
+    public function debugProcessMessage(string|\Stringable|array|null $message, array $context = []): void
+    {
+        if (is_null($message)) {
+            $message = '';
+        }
+        if (is_array($message)) {
+            $message = print_r($message, true);
+        }
+        $this->debug($message, $context);
+    }
+
+    /**
+     * Adds a log record.
+     *
+     * @param  int|Level              $level    The logging level (a Monolog or RFC 5424 level)
+     * @param  string                 $message  The log message
+     * @param  mixed[]                $context  The log context
+     * @param  JsonSerializableDateTimeImmutable|null $datetime Optional log date to log into the past or future
+     *
+     * @return bool                   Whether the record has been processed
+     *
+     * @phpstan-param value-of<Level::VALUES>|Level $level
+     */
+    public function addRecord(int|Level $level, string $message, array $context = [], JsonSerializableDateTimeImmutable|null $datetime = null): bool
     {
         if (is_array($message)) {
             $message = print_r($message, $return = true);

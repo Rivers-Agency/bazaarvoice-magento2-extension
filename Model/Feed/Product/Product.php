@@ -99,13 +99,13 @@ class Product
                 ->addFieldToFilter('store_id', $product->getData('store_id'));
             $childrenValues = [];
             foreach ($children as $child) {
-                $this->logger->debug($child->getExternalId());
+                $this->logger->debugProcessMessage($child->getExternalId());
                 foreach (Index::CUSTOM_ATTRIBUTES as $attribute) {
-                    $this->logger->debug($attribute);
+                    $this->logger->debugProcessMessage($attribute);
                     $attribute = strtolower($attribute).'s';
                     if ($child->getData($attribute)) {
                         $value = $child->getData($attribute);
-                        if (is_string($value) && strpos($value, ',') !== false) {
+                        if (is_string($value) && str_contains($value, ',')) {
                             $values = explode(',', $value);
                             if (empty($childrenValues[$attribute])) {
                                 $childrenValues[$attribute] = $values;
@@ -118,7 +118,7 @@ class Product
                     }
                 }
             }
-            $this->logger->debug($childrenValues);
+            $this->logger->debugProcessMessage($childrenValues);
             foreach ($childrenValues as $attribute => $values) {
                 if (!is_array($values) || empty($values)) {
                     continue;
@@ -129,7 +129,7 @@ class Product
 
         foreach ($product->getData() as $key => $value) {
             if (is_string($value)
-                && (substr($value, 0, 1) == '[' || substr($value, 0, 1) == '{')
+                && (str_starts_with($value, '[') || str_starts_with($value, '{'))
             ) {
                 $product->setData($key, $this->stringFormatter->jsonDecode($value));
             }
@@ -205,7 +205,7 @@ class Product
             $values = $product->getData($code);
             if (!empty($values)) {
                 $writer->startElement($label.'s');
-                if (is_string($values) && strpos($values, ',') !== false) {
+                if (is_string($values) && str_contains($values, ',')) {
                     $values = explode(',', $values);
                 }
                 if (is_array($values)) {
