@@ -157,7 +157,7 @@ class PurchaseFeed extends Feed
             if ($order->getCustomerId()) {
                 $userId = $order->getCustomerId();
             } else {
-                $userId = hash('sha256', $order->getCustomerEmail());
+                $userId = hash('sha256', (string) $order->getCustomerEmail());
             }
             $writer->writeElement('UserID', $userId);
 
@@ -221,7 +221,7 @@ class PurchaseFeed extends Feed
                     $originalPrice = $parentItem->getOriginalPrice();
 
                     if ($this->configProvider->isFamiliesEnabled()) {
-                        if (strpos($imageUrl, 'placeholder/image.jpg') !== false) {
+                        if (str_contains((string) $imageUrl, 'placeholder/image.jpg')) {
                             /**
                              * if product families are enabled and product has no image, use configurable image 
                              */
@@ -328,7 +328,7 @@ class PurchaseFeed extends Feed
         $shipments = $order->getShipmentsCollection();
         /* @var $shipment Order\Shipment */
         foreach ($shipments as $shipment) {
-            $latestShipmentTimestamp = max(strtotime($shipment->getCreatedAt()), $latestShipmentTimestamp);
+            $latestShipmentTimestamp = max(strtotime((string) $shipment->getCreatedAt()), $latestShipmentTimestamp);
         }
 
         return $latestShipmentTimestamp;

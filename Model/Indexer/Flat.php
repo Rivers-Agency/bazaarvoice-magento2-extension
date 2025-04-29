@@ -575,7 +575,7 @@ class Flat implements IndexerActionInterface, MviewActionInterface
             $rows = $select->query();
         } catch (Exception $e) {
             $this->logger->critical($e->getMessage()."\n".$e->getTraceAsString());
-            if (strpos($e->getMessage(), 'Column not found') !== false) {
+            if (str_contains($e->getMessage(), 'Column not found')) {
                 $errorExplanation = 'The following "Column not found" error typically results from a product attribute missing from the flat product table. Please ensure that the attribute referenced in the error is set to Use In Product Listing = Yes, which should cause a reindex to add it to the product flat table that is being queried: ' . $e->getMessage();
                 throw new Exception($errorExplanation, 0, $e);
             } else {
@@ -586,11 +586,11 @@ class Flat implements IndexerActionInterface, MviewActionInterface
         while (($indexData = $rows->fetch()) !== false) {
             $this->logger->debug('Processing product '.$indexData['product_id']);
             foreach ($indexData as $key => $value) {
-                if ($value && strpos($value, '||') !== false) {
-                    $indexData[$key] = explode('||', $value);
+                if ($value && str_contains((string) $value, '||')) {
+                    $indexData[$key] = explode('||', (string) $value);
                 }
-                if (in_array($key, ['family', 'parent_bvfamily']) && $value && strpos($value, ',') !== false) {
-                    $indexData[$key] = explode(',', $value);
+                if (in_array($key, ['family', 'parent_bvfamily']) && $value && str_contains((string) $value, ',')) {
+                    $indexData[$key] = explode(',', (string) $value);
                 }
             }
 
@@ -1035,7 +1035,7 @@ class Flat implements IndexerActionInterface, MviewActionInterface
 
         if ($indexData['image_url'] == '' || $indexData['image_url'] == 'no_selection') {
             return '';
-        } elseif (substr($indexData['image_url'], 0, 4) != 'http') {
+        } elseif (!str_starts_with((string) $indexData['image_url'], 'http')) {
             return $store->getBaseUrl(UrlInterface::URL_TYPE_MEDIA).'catalog/product'
                 .$indexData['image_url'];
         }

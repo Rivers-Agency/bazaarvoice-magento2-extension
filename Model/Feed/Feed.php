@@ -280,7 +280,7 @@ abstract class Feed
     protected function uploadFeed($sourceFile, $destinationFile, $store = null)
     {
         $this->logger->debug('Uploading file');
-        $this->logger->debug('Local file '.basename($sourceFile));
+        $this->logger->debug('Local file '.basename((string) $sourceFile));
         $this->logger->debug('Remote file '.$this->configProvider->getSftpHost($store->getId()).$destinationFile);
 
         $params = [
@@ -304,7 +304,7 @@ abstract class Feed
                  * @var \Magento\Framework\Filesystem\Io\File $ioObject 
                  */
                 $ioObject = $this->filesystem;
-                $sentFile = dirname($sourceFile).'/sent/'.basename($sourceFile);
+                $sentFile = dirname((string) $sourceFile).'/sent/'.basename((string) $sourceFile);
                 $ioObject->setAllowCreateFolders(true);
                 $ioObject->open(['path' => dirname($sentFile)]);
                 $ioObject->mv($sourceFile, $sentFile);

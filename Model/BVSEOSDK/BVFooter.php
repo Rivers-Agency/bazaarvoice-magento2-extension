@@ -136,7 +136,7 @@ class BVFooter
         $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
         $crawlerAgentPattern = $this->base->config['crawler_agent_pattern'] ?? '';
         $footer .= "\n".'   <li data-bvseo="crawlerAgentPattern">'.$crawlerAgentPattern.'</li>';
-        $footer .= "\n".'   <li data-bvseo="subjectID">'.urlencode($subject_id).'</li>';
+        $footer .= "\n".'   <li data-bvseo="subjectID">'.urlencode((string) $subject_id).'</li>';
 
 
         $footer .= "\n".'   <li data-bvseo="en">'.$sdk_enabled.'</li>';

@@ -20,7 +20,7 @@ class Questions extends Base
      */
     public $config;
 
-    function __construct($params = array())
+    function __construct($params = [])
     {
         // call Base Class constructor
         parent::__construct($params);

@@ -171,7 +171,7 @@ class SeoContent
         $product = $this->currentProductProvider->getProduct();
 
         $productUrl = $this->urlInterface->getCurrentUrl();
-        $parts = parse_url($productUrl);
+        $parts = parse_url((string) $productUrl);
         if (isset($parts['query'])) {
             parse_str($parts['query'], $query);
             unset($query['bvrrp']);

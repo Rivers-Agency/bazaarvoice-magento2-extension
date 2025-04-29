@@ -527,11 +527,11 @@ class Eav implements IndexerActionInterface, MviewActionInterface
         while (($indexData = $rows->fetch()) !== false) {
             $this->logger->debug('Processing product '.$indexData['product_id']);
             foreach ($indexData as $key => $value) {
-                if ($value && strpos($value, '||') !== false) {
-                    $indexData[$key] = explode('||', $value);
+                if ($value && str_contains((string) $value, '||')) {
+                    $indexData[$key] = explode('||', (string) $value);
                 }
-                if (in_array($key, ['family', 'parent_bvfamily']) && $value && strpos($value, ',') !== false) {
-                    $indexData[$key] = explode(',', $value);
+                if (in_array($key, ['family', 'parent_bvfamily']) && $value && str_contains((string) $value, ',')) {
+                    $indexData[$key] = explode(',', (string) $value);
                 }
             }
 
@@ -1014,7 +1014,7 @@ class Eav implements IndexerActionInterface, MviewActionInterface
 
         if ($indexData['image_url'] == '' || $indexData['image_url'] == 'no_selection') {
             return '';
-        } elseif (substr($indexData['image_url'], 0, 4) != 'http') {
+        } elseif (!str_starts_with((string) $indexData['image_url'], 'http')) {
             return $store->getBaseUrl(UrlInterface::URL_TYPE_MEDIA).'catalog/product'
                 .$indexData['image_url'];
         }

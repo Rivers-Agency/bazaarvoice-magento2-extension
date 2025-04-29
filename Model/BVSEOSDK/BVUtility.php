@@ -17,24 +17,12 @@ class BVUtility
      * @var array
      */
     public static $supportedContentTypes
-        = array(
-            'r'  => 'REVIEWS',
-            'q'  => 'QUESTIONS',
-            's'  => 'STORIES',
-            'u'  => 'UNIVERSAL',
-            'sp' => 'SPOTLIGHTS',
-        );
+        = ['r'  => 'REVIEWS', 'q'  => 'QUESTIONS', 's'  => 'STORIES', 'u'  => 'UNIVERSAL', 'sp' => 'SPOTLIGHTS'];
     /**
      * @var array
      */
     private static $supportedSubjectTypes
-        = array(
-            'p' => 'PRODUCT',
-            'c' => 'CATEGORY',
-            'e' => 'ENTRY',
-            'd' => 'DETAIL',
-            's' => 'SELLER',
-        );
+        = ['p' => 'PRODUCT', 'c' => 'CATEGORY', 'e' => 'ENTRY', 'd' => 'DETAIL', 's' => 'SELLER'];
 
     /**
      * Parse the provided "bvstate" parameter value.
@@ -47,7 +35,7 @@ class BVUtility
      */
     public static function getBVStateHash($bvstate)
     {
-        $bvStateHash = array();
+        $bvStateHash = [];
         $bvp = mb_split("/", $bvstate);
         foreach ($bvp as $param) {
             $key = static::mb_trim(mb_substr($param, 0, mb_strpos($param, ':')));
@@ -78,7 +66,7 @@ class BVUtility
             $typeName = 'content type';
             $typeArray = static::$supportedContentTypes;
         }
-        if (!array_key_exists(mb_strtolower($type), $typeArray)) {
+        if (!array_key_exists(mb_strtolower((string) $type), $typeArray)) {
             foreach ($typeArray as $key => $value) {
                 $supportList[] = $key.'='.$value;
             }
@@ -103,7 +91,7 @@ class BVUtility
     public static function getBVStateParams($bvstate)
     {
         $bvStateHash = self::getBVStateHash($bvstate);
-        $params = array();
+        $params = [];
 
         // If the content type 'ct' parameter is not present, then ignore bvstate.
         if (empty($bvStateHash['ct'])) {
@@ -120,12 +108,12 @@ class BVUtility
             if (!empty($bvStateHash['ct'])) {
                 $cType = $bvStateHash['ct'];
                 self::checkType($cType, 'ct');
-                $params['content_type'] = mb_strtolower(self::$supportedContentTypes[$cType]);
+                $params['content_type'] = mb_strtolower((string) self::$supportedContentTypes[$cType]);
             }
             if (!empty($bvStateHash['st'])) {
                 $sType = $bvStateHash['st'];
                 self::checkType($sType, 'st');
-                $params['subject_type'] = mb_strtolower(self::$supportedSubjectTypes[$sType]);
+                $params['subject_type'] = mb_strtolower((string) self::$supportedSubjectTypes[$sType]);
             }
             if (!empty($bvStateHash['reveal'])) {
                 $params['bvreveal'] = $bvStateHash['reveal'];
@@ -163,8 +151,8 @@ class BVUtility
 
         // Break down the URL into a mix of things, some of which are name=value
         // pairs.
-        $params = array();
-        $chunks = mb_split('\?|&amp;|&|#!|#|_escaped_fragment_=|%26', $url);
+        $params = [];
+        $chunks = mb_split('\?|&amp;|&|#!|#|_escaped_fragment_=|%26', (string) $url);
         foreach ($chunks as $chunk) {
             // If this is name=value, then there will be two items.
             $values = mb_split('=', $chunk);
@@ -219,7 +207,7 @@ class BVUtility
         // Big assumption: our seo link values will never contain the % character.
         //
         // http://example.com/product/123?bvstate=pg:4/ct:r&amp;a=b
-        $url = mb_ereg_replace($paramName.'=[^&#%]*&amp;', '', $url);
+        $url = mb_ereg_replace($paramName.'=[^&#%]*&amp;', '', (string) $url);
         // http://example.com/product/123?bvstate=pg:4/ct:r&a=b
         // http://example.com/product/123?#!bvstate=pg:4/ct:r&a=b
         // http://example.com/product/123?_escaped_fragment_=bvstate=pg:4/ct:r%26a=b
@@ -246,7 +234,7 @@ class BVUtility
      */
     public static function mb_trim($str)
     {
-        return mb_ereg_replace('(^\s+)|(\s+$)', '', $str);
+        return mb_ereg_replace('(^\s+)|(\s+$)', '', (string) $str);
     }
 
 }

@@ -167,7 +167,7 @@ class CatalogProductBuilder implements CatalogProductBuilderInterface
             try {
                 $categoryTree = $category->getPath();
                 if ($categoryTree) {
-                    $categoryTree = explode('/', $categoryTree);
+                    $categoryTree = explode('/', (string) $categoryTree);
                     array_shift($categoryTree);
                     foreach ($categoryTree as $key => $treeId) {
                         $parentCategory = $this->categoryRepository->get($treeId, $product->getStoreId());
@@ -225,7 +225,7 @@ class CatalogProductBuilder implements CatalogProductBuilderInterface
      */
     private function getCustomAttributeData($product, $attributeCode)
     {
-        $code = strtolower($attributeCode);
+        $code = strtolower((string) $attributeCode);
         $attr = $this->configProvider->getAttributeCode($code, $product->getStoreId());
         $value = [];
         if ($attr) {
@@ -234,7 +234,7 @@ class CatalogProductBuilder implements CatalogProductBuilderInterface
                 $value = $product->getData($attr);
             }
             if (!empty($value)) {
-                if (is_string($value) && strpos($value, ',') !== false) {
+                if (is_string($value) && str_contains($value, ',')) {
                     $value = $this->stringFormatter->explodeAndTrim(',', $value);
                 } else {
                     $value = [$value];

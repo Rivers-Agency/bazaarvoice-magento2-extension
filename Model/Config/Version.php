@@ -91,7 +91,7 @@ class Version extends Value
         );
         $directoryRead = $this->readFactory->create($path);
         $composerJsonData = $directoryRead->readFile('composer.json');
-        $data = json_decode($composerJsonData);
+        $data = json_decode((string) $composerJsonData);
         if (!empty($data->version)) {
             $version = $data->version;
         }

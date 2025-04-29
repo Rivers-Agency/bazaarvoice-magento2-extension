@@ -84,8 +84,8 @@ class Json extends Column
      */
     private function truncate($string)
     {
-        if (strlen($string) > 45 && substr($string, 0, 4) != 'http') {
-            $string = substr($string, 0, 45).'...';
+        if (strlen((string) $string) > 45 && !str_starts_with((string) $string, 'http')) {
+            $string = substr((string) $string, 0, 45).'...';
         }
 
         return $string;
