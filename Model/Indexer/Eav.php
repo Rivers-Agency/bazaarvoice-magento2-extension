@@ -98,6 +98,22 @@ class Eav implements IndexerActionInterface, MviewActionInterface
      * @var \Magento\Eav\Model\Config
      */
     private $eavConfig;
+    /**
+     * @var \Magento\Catalog\Helper\Image
+     */
+    private $imageHelper;
+    /**
+     * @var \Magento\Framework\View\Asset\Repository
+     */
+    private $assetRepository;
+    /**
+     * @var \Magento\Framework\View\DesignInterface
+     */
+    private $design;
+    /**
+     * @var \Magento\Theme\Model\Theme
+     */
+    private $theme;
 
     /**
      * @param \Bazaarvoice\Connector\Logger\Logger                               $logger
@@ -111,6 +127,10 @@ class Eav implements IndexerActionInterface, MviewActionInterface
      * @param \Bazaarvoice\Connector\Api\Data\IndexInterfaceFactory              $bvIndexFactory
      * @param \Bazaarvoice\Connector\Api\IndexRepositoryInterface                $indexRepository
      * @param \Magento\Eav\Model\Config                                          $eavConfig
+     * @param \Magento\Catalog\Helper\Image                                      $imageHelper
+     * @param \Magento\Framework\View\Asset\Repository                           $assetRepository
+     * @param \Magento\Framework\View\DesignInterface                            $design
+     * @param \Magento\Theme\Model\Theme                                         $theme
      */
     public function __construct(
         Logger $logger,
@@ -507,11 +527,11 @@ class Eav implements IndexerActionInterface, MviewActionInterface
         while (($indexData = $rows->fetch()) !== false) {
             $this->logger->debug('Processing product '.$indexData['product_id']);
             foreach ($indexData as $key => $value) {
-                if ($value && strpos($value, '||') !== false) {
-                    $indexData[$key] = explode('||', $value);
+                if ($value && str_contains((string) $value, '||')) {
+                    $indexData[$key] = explode('||', (string) $value);
                 }
-                if (in_array($key, ['family', 'parent_bvfamily']) && $value && strpos($value, ',') !== false) {
-                    $indexData[$key] = explode(',', $value);
+                if (in_array($key, ['family', 'parent_bvfamily']) && $value && str_contains((string) $value, ',')) {
+                    $indexData[$key] = explode(',', (string) $value);
                 }
             }
 
@@ -527,7 +547,7 @@ class Eav implements IndexerActionInterface, MviewActionInterface
                     }
                 }
                 $this->logger->debug('Family Info');
-                $this->logger->debug($indexData['family']);
+                $this->logger->debugProcessMessage($indexData['family']);
             }
 
             if ($indexData['bv_category_external_id']) {
@@ -698,7 +718,7 @@ class Eav implements IndexerActionInterface, MviewActionInterface
 
                         if (isset($indexData['product_page_url'])) {
                             $this->logger->debug('Locale URL');
-                            $this->logger->debug($indexData['product_page_url']);
+                            $this->logger->debugProcessMessage($indexData['product_page_url']);
                         }
 
                         $indexData['image_url'] = $this->getImageUrl($localeStore, $indexData);
@@ -988,13 +1008,13 @@ class Eav implements IndexerActionInterface, MviewActionInterface
                 $this->logger->debug('Product has no parent and no image');
                 $indexData['image_url'] = $this->getPlaceholderUrl($store);
                 $this->logger->debug('default product url:');
-                $this->logger->debug($indexData['image_url']);
+                $this->logger->debugProcessMessage($indexData['image_url']);
             }
         }
 
         if ($indexData['image_url'] == '' || $indexData['image_url'] == 'no_selection') {
             return '';
-        } elseif (substr($indexData['image_url'], 0, 4) != 'http') {
+        } elseif (!str_starts_with((string) $indexData['image_url'], 'http')) {
             return $store->getBaseUrl(UrlInterface::URL_TYPE_MEDIA).'catalog/product'
                 .$indexData['image_url'];
         }

@@ -14,6 +14,7 @@ use Bazaarvoice\Connector\Api\ConfigProviderInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\ScopeInterface;
+use Bazaarvoice\Connector\Model\Filesystem\Io\Sftp;
 
 /**
  * Class TestConnection
@@ -22,11 +23,41 @@ use Magento\Store\Model\ScopeInterface;
  */
 class TestConnection extends Action
 {
-   
+    /**
+     * @var Bazaarvoice\Connector\Model\Filesystem\Io\Sftp
+     */
+    private $sftp;
+
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    private $storeManager;
+
+    /**
+     * @var \Bazaarvoice\Connector\Api\ConfigProviderInterface
+     */
+    private $configProvider;
+
+    /**
+     * @var \Magento\Framework\Controller\Result\JsonFactory
+     */
+    private $resultJsonFactory;
+
+    /**
+     * @var \Magento\Framework\Filter\StripTags
+     */
+    private $tagFilter;
+
     /**
      * TestConnection constructor.
      *
-     * @param Context      $context
+     * @param Context                   $context
+     * @param Sftp                      $sftp
+     * @param ConfigProviderInterface   $configProvider
+     * @param StoreInterface            $store
+     * @param StoreManagerInterface     $storeManager
+     * @param JsonFactory               $resultJsonFactory
+     * @param StripTags                 $tagFilter
      * @param PurchaseFeed $purchaseFeed
      */
     public function __construct(
@@ -88,7 +119,7 @@ class TestConnection extends Action
 
 
         /**
-        * @var \Magento\Framework\Controller\Result\Json $resultJson 
+        * @var \Magento\Framework\Controller\Result\Json $resultJson
         */
         $resultJson = $this->resultJsonFactory->create();
         return $resultJson->setData($result);

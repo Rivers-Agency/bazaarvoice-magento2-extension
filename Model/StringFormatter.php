@@ -66,7 +66,7 @@ class StringFormatter implements StringFormatterInterface
         return preg_replace_callback(
             '/[^\w\d\*\-_]/s', function ($match) {
                 return "_bv".ord($match[0])."_";
-            }, $rawProductId
+            }, (string) $rawProductId
         );
     }
 
@@ -146,7 +146,7 @@ class StringFormatter implements StringFormatterInterface
      */
     public function jsonDecode($value)
     {
-        $result = json_decode($value, $assoc = true);
+        $result = json_decode((string) $value, $assoc = true);
         if (json_last_error() != JSON_ERROR_NONE) {
             return $value;
         }

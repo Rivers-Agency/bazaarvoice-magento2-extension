@@ -63,8 +63,8 @@ class BVFooter
         } else {
             $exec_time = 0;
         }
-        $content_type = mb_strtoupper($this->base->config['content_type']);
-        $subject_type = mb_strtoupper($this->base->config['subject_type']);
+        $content_type = mb_strtoupper($this->base->config['content_type'] ?? '');
+        $subject_type = mb_strtoupper($this->base->config['subject_type'] ?? '');
 
         $footer = "\n".'<ul id="BVSEOSDK_meta" style="display:none !important;">';
         $footer .= "\n".'   <li data-bvseo="sdk">bvseo_sdk, p_sdk, '.self::VERSION.'</li>';
@@ -96,14 +96,15 @@ class BVFooter
         $proxy_port = !empty($this->base->config['proxy_port']) ? $this->base->config['proxy_port'] : '0';
         $local_seo_file_root = (!empty($this->base->config['load_seo_files_locally']))
             ? $this->base->config['local_seo_file_root'] : 'FALSE';
-        $content_type = mb_strtoupper($this->base->config['content_type']);
-        $subject_type = mb_strtoupper($this->base->config['subject_type']);
+        $content_type = mb_strtoupper($this->base->config['content_type'] ?? '');
+        $subject_type = mb_strtoupper($this->base->config['subject_type'] ?? '');
         if (!empty($this->base->config['page_params']['subject_id'])
             && !empty($this->base->config['page_params']['content_type'])
+            && isset($this->base->config['content_type'])
             && $this->base->config['page_params']['content_type'] == $this->base->config['content_type']) {
             $subject_id = $this->base->config['page_params']['subject_id'];
         } else {
-            $subject_id = $this->base->config['subject_id'];
+            $subject_id = $this->base->config['subject_id'] ?? '';
         }
 
         $footer = "\n".'<ul id="BVSEOSDK_DEBUG" style="display:none;">';
@@ -132,13 +133,15 @@ class BVFooter
         $footer .= "\n".'   <li data-bvseo="bv.root.folder">'.$this->base->config['bv_root_folder'].'</li>';
         $footer .= "\n".'   <li data-bvseo="seo.sdk.charset">'.$this->base->config['charset'].'</li>';
         $footer .= "\n".'   <li data-bvseo="seo.sdk.ssl.enabled">'.$ssl_enabled.'</li>';
-        $footer .= "\n".'   <li data-bvseo="crawlerAgentPattern">'.$this->base->config['crawler_agent_pattern'].'</li>';
-        $footer .= "\n".'   <li data-bvseo="subjectID">'.urlencode($subject_id).'</li>';
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        $crawlerAgentPattern = $this->base->config['crawler_agent_pattern'] ?? '';
+        $footer .= "\n".'   <li data-bvseo="crawlerAgentPattern">'.$crawlerAgentPattern.'</li>';
+        $footer .= "\n".'   <li data-bvseo="subjectID">'.urlencode((string) $subject_id).'</li>';
 
 
         $footer .= "\n".'   <li data-bvseo="en">'.$sdk_enabled.'</li>';
         $footer .= "\n".'   <li data-bvseo="pn">bvseo-'.$this->base->config['page'].'</li>';
-        $footer .= "\n".'   <li data-bvseo="userAgent">'.$_SERVER['HTTP_USER_AGENT'].'</li>';
+        $footer .= "\n".'   <li data-bvseo="userAgent">'.$userAgent.'</li>';
         $footer .= "\n".'   <li data-bvseo="pageURI">'.$this->base->config['page_url'].'</li>';
         $footer .= "\n".'   <li data-bvseo="baseURI">'.$this->base->config['base_url'].'</li>';
         $footer .= "\n".'   <li data-bvseo="contentType">'.$content_type.'</li>';

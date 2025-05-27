@@ -20,7 +20,26 @@ class Base
 {
     private $msg = '';
 
-    public function __construct($params = array())
+    /**
+     * @var array $config
+     */
+    private $config;
+
+    /**
+     * @var array<string, mixed>|array<string, string>
+     */
+    public $bv_config;
+    public $seo_url;
+    /**
+     * @var float|string
+     */
+    public $start_time;
+    /**
+     * @var float
+     */
+    public $response_time;
+
+    public function __construct($params = [])
     {
 
         $this->validateParams($params);
@@ -45,7 +64,8 @@ class Base
             : $this->config['execution_timeout'];
 
         // set up combined user agent to be passed to cloud storage (if needed)
-        $this->config['user_agent'] = "bv_php_sdk/3.2.1;".$_SERVER['HTTP_USER_AGENT'];
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        $this->config['user_agent'] = "bv_php_sdk/3.2.1;".$userAgent;
     }
 
     protected function validateParams($params)
@@ -66,6 +86,7 @@ class Base
 
         if (
             !empty($this->config['page_params']['content_type'])
+            && isset($this->config['content_type'])
             && $this->config['page_params']['content_type'] == $this->config['content_type']
         ) {
             return true;
@@ -81,7 +102,7 @@ class Base
      */
     protected function _setBuildMessage($msg)
     {
-        $msg = rtrim($msg, ";");
+        $msg = rtrim((string) $msg, ";");
         $this->msg .= ' '.$msg.';';
     }
 
@@ -123,7 +144,7 @@ class Base
     private function _charsetEncode($seo_content)
     {
         if (isset($this->config['charset'])) {
-            $enc = mb_detect_encoding($seo_content);
+            $enc = mb_detect_encoding((string) $seo_content);
             $seo_content = mb_convert_encoding($seo_content, $this->config['charset'], $enc);
         }
 
@@ -176,15 +197,15 @@ class Base
     private function _replaceSection($str, $search_str_begin, $search_str_end)
     {
         $result = $str;
-        $start_index = mb_strrpos($str, $search_str_begin);
+        $start_index = mb_strrpos((string) $str, (string) $search_str_begin);
 
         if ($start_index !== false) {
-            $end_index = mb_strrpos($str, $search_str_end);
+            $end_index = mb_strrpos((string) $str, (string) $search_str_end);
 
             if ($end_index !== false) {
-                $end_index += mb_strlen($search_str_end);
-                $str_begin = mb_substr($str, 0, $start_index);
-                $str_end = mb_substr($str, $end_index);
+                $end_index += mb_strlen((string) $search_str_end);
+                $str_begin = mb_substr((string) $str, 0, $start_index);
+                $str_end = mb_substr((string) $str, $end_index);
 
                 $result = $str_begin.$str_end;
             }
@@ -256,7 +277,7 @@ class Base
             }
 
             try {
-                $payload = $this->_getFullSeoContents($access_method);
+                $payload = $this->_getFullSeoContents();
             } catch (Exception $e) {
                 $this->_setBuildMessage($e->getMessage());
             }
@@ -287,8 +308,12 @@ class Base
             return true;
         }
 
+        if (!isset($this->config['crawler_agent_pattern']) || !isset($_SERVER['HTTP_USER_AGENT'])) {
+            return true;
+        }
+
         // search the user agent string for an indication if this is a search bot or not
-        return mb_eregi('('.$this->config['crawler_agent_pattern'].')', $_SERVER['HTTP_USER_AGENT']);
+        return mb_eregi('('.$this->config['crawler_agent_pattern'].')', (string) $_SERVER['HTTP_USER_AGENT']);
     }
 
     /**
@@ -350,7 +375,9 @@ class Base
                 // someone calls up a page with bvstate=ct:r/pg:2 and loads stories rather
                 // than reviews, show page 1 for stories. Only show page 2 if they are in
                 // fact displaying review content.
-                if ($this->config['content_type'] == $this->config['page_params']['content_type']) {
+                if (isset($this->config['content_type'])
+                    && isset($this->config['page_params']['content_type'])
+                    && $this->config['content_type'] == $this->config['page_params']['content_type']) {
                     $page_number = $this->config['page_params']['page'];
                 }
             }
@@ -381,8 +408,8 @@ class Base
         }
 
         if (!empty($bvparam)) {
-            $match = array();
-            mb_ereg('\/(\d+)\/', $bvparam, $match);
+            $match = [];
+            mb_ereg('\/(\d+)\/', (string) $bvparam, $match);
             $page_number = max(1, (int)$match[1]);
         }
 
@@ -421,7 +448,9 @@ class Base
 
         $url_scheme = $this->config['ssl_enabled'] ? 'https://' : 'http://';
 
-        if ($this->config['content_type'] == 'reviews'
+        if (isset($this->config['content_type'])
+            && isset($this->config['subject_type'])
+            && $this->config['content_type'] == 'reviews'
             && $this->config['subject_type'] == 'seller') {
             // when content type is reviews and subject type is seller,
             // we're dealing with seller rating, so use different primary selector
@@ -433,23 +462,16 @@ class Base
         };
 
         // dictates order of URL
-        $url_parts = array(
-            $url_scheme.$hostname,
-            $this->config['cloud_key'],
-            $this->config['bv_root_folder'],
-            $this->config['content_type'],
-            $this->config['subject_type'],
-            $page_number,
-        );
+        $url_parts = [$url_scheme.$hostname, $this->config['cloud_key'], $this->config['bv_root_folder'], $this->config['content_type'], $this->config['subject_type'], $page_number];
 
         if (isset($this->config['content_sub_type']) && !empty($this->config['content_sub_type'])) {
             $url_parts[] = $this->config['content_sub_type'];
         }
 
         if (!empty($this->config['page_params']['subject_id']) && $this->_checkBVStateContentType()) {
-            $url_parts[] = urlencode($this->config['page_params']['subject_id']).'.htm';
+            $url_parts[] = urlencode((string) $this->config['page_params']['subject_id']).'.htm';
         } else {
-            $url_parts[] = urlencode($this->config['subject_id']).'.htm';
+            $url_parts[] = urlencode((string) $this->config['subject_id']).'.htm';
         }
 
         // if our SEO content source is a file path
@@ -574,12 +596,7 @@ class Base
         // make the request to the given URL and then store the response,
         // request info, and error number
         // so we can use them later
-        $request = array(
-            'response'      => $this->curlExecute($ch),
-            'info'          => $this->curlInfo($ch),
-            'error_number'  => $this->curlErrorNo($ch),
-            'error_message' => $this->curlError($ch),
-        );
+        $request = ['response'      => $this->curlExecute($ch), 'info'          => $this->curlInfo($ch), 'error_number'  => $this->curlErrorNo($ch), 'error_message' => $this->curlError($ch)];
 
         // Close the cURL resource, and free system resources
         curl_close($ch);
@@ -627,18 +644,18 @@ class Base
         // always postfix the SEO query parameters to the end of the URL.
         //
         // If the base url ends with an empty _escaped_fragment_ property.
-        if (mb_ereg('_escaped_fragment_=$', $this->config['base_url'])) {
+        if (mb_ereg('_escaped_fragment_=$', (string) $this->config['base_url'])) {
             // Append nothing for this annoying edge case.
         }
         // Otherwise if there is something in the _escaped_fragment_ then append
         // the escaped ampersand.
         else {
-            if (mb_ereg('_escaped_fragment_=.+$', $this->config['base_url'])) {
+            if (mb_ereg('_escaped_fragment_=.+$', (string) $this->config['base_url'])) {
                 $page_url_query_prefix = '%26';
             } // Otherwise we're back to thinking about query strings.
             else {
-                if (!mb_ereg('[\?&]$', $this->config['base_url'])) {
-                    if (mb_ereg('\?', $this->config['base_url'])) {
+                if (!mb_ereg('[\?&]$', (string) $this->config['base_url'])) {
+                    if (mb_ereg('\?', (string) $this->config['base_url'])) {
                         $page_url_query_prefix = '&';
                     } else {
                         $page_url_query_prefix = '?';
@@ -658,7 +675,7 @@ class Base
                 // Don't double-encode.
                 false
             ),
-            $content
+            (string) $content
         );
 
         return $content;
@@ -689,7 +706,7 @@ class Base
     public function getContent()
     {
         $this->_setBuildMessage('Content Type "'.$this->config['content_type'].'" is not supported by getContent().');
-        $pay_load = $this->_buildComment('', 'getContent');
+        $pay_load = $this->_buildComment('');
 
         return $pay_load;
     }
@@ -698,7 +715,7 @@ class Base
     {
         $this->_setBuildMessage('Content Type "'.$this->config['content_type']
             .'" is not supported by getAggregateRating().');
-        $pay_load = $this->_buildComment('', 'getAggregateRating');
+        $pay_load = $this->_buildComment('');
 
         return $pay_load;
     }
@@ -706,7 +723,7 @@ class Base
     public function getReviews()
     {
         $this->_setBuildMessage('Content Type "'.$this->config['content_type'].'" is not supported by getReviews().');
-        $pay_load = $this->_buildComment('', 'getReviews');
+        $pay_load = $this->_buildComment('');
 
         return $pay_load;
     }

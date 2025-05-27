@@ -78,7 +78,7 @@ class Item
             return false;
         }
 
-        $typesEnabled = explode(',', $inlineRatings);
+        $typesEnabled = explode(',', (string) $inlineRatings);
 
         return in_array($this->type, $typesEnabled);
     }

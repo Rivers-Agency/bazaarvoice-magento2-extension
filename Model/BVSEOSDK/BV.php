@@ -54,6 +54,34 @@ define('DEFAULT_CHARSET', 'UTF-8');
  */
 class BV
 {
+    /**
+     * @var array $config
+     */
+    private $config;
+    /**
+     * @var \Bazaarvoice\Connector\Model\BVSEOSDK\Reviews
+     */
+    public $reviews;
+    /**
+     * @var \Bazaarvoice\Connector\Model\BVSEOSDK\Questions
+     */
+    public $questions;
+    /**
+     * @var \Bazaarvoice\Connector\Model\BVSEOSDK\Stories
+     */
+    public $stories;
+    /**
+     * @var \Bazaarvoice\Connector\Model\BVSEOSDK\Spotlights
+     */
+    public $spotlights;
+    /**
+     * @var \Bazaarvoice\Connector\Model\BVSEOSDK\SellerRatings
+     */
+    public $sellerratings;
+    /**
+     * @var \Bazaarvoice\Connector\Model\BVSEOSDK\SellerRatings|\Bazaarvoice\Connector\Model\BVSEOSDK\Reviews|\Bazaarvoice\Connector\Model\BVSEOSDK\Questions|\Bazaarvoice\Connector\Model\BVSEOSDK\Stories|\Bazaarvoice\Connector\Model\BVSEOSDK\Spotlights
+     */
+    public $SEO;
 
     /**
      * BV Class Constructor
@@ -66,13 +94,13 @@ class BV
      *
      * @throws \Exception
      */
-    public function __construct($params = array())
+    public function __construct($params = [])
     {
 
         $this->validateParameters($params);
 
         // config array, defaults are defined here.
-        $this->config = array(
+        $this->config = [
             'staging'                          => false,
             'testing'                          => false,
             'content_type'                     => isset($params['content_type']) ? $params['content_type'] : 'reviews',
@@ -94,8 +122,8 @@ class BV
             'execution_timeout_bot'            => 2000,
             'bvreveal'                         => isset($params['bvreveal']) ? $params['bvreveal'] : '',
             'page'                             => 1,
-            'page_params'                      => array(),
-        );
+            'page_params'                      => [],
+        ];
 
         // Merge passed in params with defaults for config.
         $this->config = array_merge($this->config, $params);
@@ -125,7 +153,7 @@ class BV
         // http://example.com?a=b&
         // http://example.com?a=b&_escaped_fragment_=x/y/z?r=s%26
         //
-        $this->config['base_url'] = mb_ereg_replace('(&|\?|%26)$', '', $this->config['base_url']);
+        $this->config['base_url'] = mb_ereg_replace('(&|\?|%26)$', '', (string) $this->config['base_url']);
 
         // Get rid of all the other things we care about from the base URL, so that
         // we don't double up the parameters.
@@ -196,4 +224,3 @@ class BV
         }
     }
 }
-

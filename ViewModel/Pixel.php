@@ -132,11 +132,11 @@ class Pixel implements ArgumentInterface
         $this->orderDetails['tax'] = number_format((float)$order->getTaxAmount() ?? 0.0, 2, '.', '');
         $this->orderDetails['shipping'] = number_format((float)$order->getShippingAmount() ?? 0.0, 2, '.', '');
         if (!$this->taxConfig->discountTax()) {
-            $this->orderDetails['discount'] = number_format(abs((float)$order->getDiscountAmount()) ?? 0.0, 2, '.', '');
+            $this->orderDetails['discount'] = number_format((float)abs((float)$order->getDiscountAmount()) ?? 0.0, 2, '.', '');
         } else {
             //when discount is applied to products "including tax" - extract tax compensation amount from "discount".  
             $this->orderDetails['discount'] = number_format(
-            abs((float)$order->getDiscountAmount()) - abs((float)$order->getDiscountTaxCompensationAmount()) ?? 0.0, 2, '.', '' );
+                (float)abs((float)$order->getDiscountAmount()) - (float)abs((float)$order->getDiscountTaxCompensationAmount()) ?? 0.0, 2, '.', '' );
         }
 
         if ($address) {
@@ -183,7 +183,7 @@ class Pixel implements ArgumentInterface
             $itemDetails['imageURL'] = $this->mediaConfigFactory->create()->getMediaUrl($product->getSmallImage());
 
             if ($this->configProvider->isFamiliesEnabled() && $item->getParentItem()) {
-                if (strpos($itemDetails['imageURL'], 'placeholder/image.jpg') !== false) {
+                if (str_contains((string) $itemDetails['imageURL'], 'placeholder/image.jpg')) {
                     /**
                      * if product families are enabled and product has no image, use configurable image
                      */
@@ -205,7 +205,7 @@ class Pixel implements ArgumentInterface
         if ($order->getCustomerId()) {
             $userId = $order->getCustomerId();
         } elseif ($order->getCustomerEmail()) {
-            $userId = hash('sha256', $order->getCustomerEmail());
+            $userId = hash('sha256', (string) $order->getCustomerEmail());
         }
         if (!empty($userId)) {
             $this->orderDetails['userId'] = $userId;
